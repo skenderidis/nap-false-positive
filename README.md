@@ -10,7 +10,7 @@ In order for NAP-FPM to work it requires the following two components:
 - Datasource where it can pull the NAP events from. Currently the support datasource is Elasticsearch. 
 - GitLab to store the policies. NAP-FPM will interact with the GitLab API to pull the policy, make the necessary changes and then push the updated NAP policies back to Gitlab .
 
-<img src="fpm-demo.gif"/>
+<img src="fpm.gif"/>
 
 ## Pre-requisites
 In order for this tool to work 
