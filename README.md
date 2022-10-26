@@ -1,5 +1,5 @@
 # NAP - False Positive Management
-> NAP-FPM make it easier for SecOps teams to make changes to the NGINX App Protect policies.
+> NAP-FPM makes it easier for SecOps teams to manage False Positives and do the required changes to the NGINX App Protect policies.
 
 
 ## How does it works
@@ -36,10 +36,16 @@ The source of truth for the NAP policies should be GitLab. The repositories on G
 ### Deploy NAP-FPM docker instance.
 We provide 2 options on how to deploy the NAP-FPM as a docker container.
 
-**First option** is to use the docker image that is already configured and pushed to DockerHub. To deploy this image simply run the following on your Docker station:
-```
-docker run -d -p 80:80 skenderidis/nap-fpm:latest
-```
+**First option** is to use the docker image that is already configured and pushed to DockerHub. To deploy this image simply run the following on your Docker station.
+1. Create a Volume for persistent storage. 
+  ```
+  docker volume create fpm-volume
+  ```
+2. Run the Docker instance. 
+  ```
+  docker run -d -p 80:80 -v fpm-volume:/etc/fpm  skenderidis/nap-fpm:latest
+  ```
+Ready to connect.
 
 **Second option** is to use build the image based on the dockerfile that is provided on this GitHub repo.
   1. Clone the repo to your docker station and switch the working directory to be `nap-false-positive`.
@@ -47,31 +53,73 @@ docker run -d -p 80:80 skenderidis/nap-fpm:latest
   git clone https://github.com/skenderidis/nap-false-positive.git
   cd nap-false-positive
   ```
-
-  2. Build the docker image.
+  2.  Create a Volume for persistent storage. 
+  ```
+  docker volume create fpm-volume
+  ```
+  3. Build the docker image.
   ```
   docker build -t nap-fpm:latest .
   ```
-
-  3. Run the image that you just built.
+  4. Run the image that you just built.
   ```
-  docker run -d -p 80:80 skenderidis/nap-fpm:latest
+  docker run -d -p 80:80 -v fpm-volume:/etc/fpm  skenderidis/nap-fpm:latest
   ```
 
 > Note: If you require FPM to run inside K8s please open a GitHub issue.
 
 
 ## Configuration
-In this section we will show how to do the basic configuration of **NAP-FPM**.
+In this section we will take you through the steps on how to do the basic configuration of **NAP-FPM**.
 
-Step 1. Open your browser and connect to the IP address of the running container  
+Open your browser and connect to the IP address of the running container  
 
 <p align="left">
 <img width="500" src="login.png"/>       
 </p>
-Step 2. Log in with the default credentials (admin/admin)
 
-Step 3. The tool should redirect you to the `settings.php` page.
+Log in with the default credentials (admin/admin)
+
+You should be redirect you to the `settings.php` page.
+<p align="left">
+<img width="800" src="settings-2.png"/>       
+</p>
+
+> **Note:** You should see 2 warnings at the top of the page. This is due to the fact that neither GitLab nor Elastic datasources have been configured
+
+Enter the URL for Elastic Datasource.
+
+<p align="left">
+<img width="800" src="datasource.png"/>       
+</p>
+
+> **Note:** After you have validate the Datasource URL, you should be able to save the configuration. 
+
+Save Elastic Datasource. 
+
+<p align="left">
+<img width="250" src="datasource-success.png"/>       
+</p>
+
+> **Note:** You will receive a message that the Datasource configuration has been saved.
 
 
+Click the `Add new` button and enter the GitLab details. 
+
+<p align="left">
+<img width="500" src="repo.png"/>
+</p>
+
+> **Note:** It is important to enter the Foder/Path that the NAP Policies are saved.
+> **Note2:** After you have validate the Datasource URL, you should be able to save the configuration. 
+
+Save the GitLab Repo. 
+
+<p align="left">
+<img width="500" src="repo-success.png"/>       
+</p>
+
+> **Note:** You will receive a message that the Datasource configuration has been saved.
+
+Once all the above steps are completed you can go to the `Violations` tab. You should be able to retrieve the NAP events from and modify the configuration accordingly.
 
