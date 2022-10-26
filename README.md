@@ -20,18 +20,17 @@ NAP-FPM UI provides visibility to SecOps teams, for the different violations tha
 In the following section we will describe how to deploy all the required components in order for **NAP-FPM** to work successfully. 
 
 
-### Pre-requisite #1 - Deploy the Datasource.
-**NAP-FPM** provides doesn't provide any Datastore to save the NAP events. For storing the NAP events we rely on Elasticsearch. Please refer to the NAP-Dashboard project that provides detail steps on how to deploy Elasticsearch for NAP.
+### Deploy Elastic as the Datastore
+**NAP-FPM** provides doesn't provide any Datastore to save *NGINX App Protect* events. For storing the NAP events we rely on Elasticsearch. Please refer to the <a href="https://github.com/skenderidis/nap-dashboard"> NAP-Dashboard </a> project that provides all the details on how to deploy `Elasticsearch`, `Logstash` and `Grafana` for *NGINX App Protect*.
 
+### Configure GitLab.
+The source of truth for the *NGINX App Protect* policies should always be GitLab. The GitLab repository should hold the latest version of the **WAF*** policies that have been deployed. <br>
+**NAP-FPM** will use GitLab's API to pull and push changes made on the *NGINX App Protect* policies. In order for **NAP-FPM** to have permission to do so, we need to create a GITLAB Access-Token. This can be done under `Settings`->`Access Tokens`. The token needs to have read/write access to the repository. 
 
-### Pre-requisite #2 - Configure GitLab.
-The source of truth for the NAP policies should be GitLab. The repositories on GitLab should hold the latest version of the NAP policies that have been deployed. <br>
-**NAP-FPM** must be able to pull and push the changes made on the NAP policies through the use of GitLab API. For **NAP-FPM** to have permission to do so, we need to create a GITLAB Access-Token. This can be done under `Settings`->`Access Tokens`. The token needs to have read/write access to the repository. 
-
-<p align="left">
-<img width="500" src="gitlab.png"/>       
+<p align="center">
+<img width="600" src="gitlab.png"/>       
 </p>
-
+>**Note:** If you require information on how to install GitLab onprem, please refere to the following link. https://about.gitlab.com/install/ 
 
 ### Deploy NAP-FPM docker instance.
 We provide 2 options on how to deploy the NAP-FPM as a docker container.
@@ -122,4 +121,7 @@ Save the GitLab Repo.
 > **Note:** You will receive a message that the Datasource configuration has been saved.
 
 Once all the above steps are completed you can go to the `Violations` tab. You should be able to retrieve the NAP events from and modify the configuration accordingly.
+
+
+## Integration with Grafana
 
