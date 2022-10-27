@@ -5,7 +5,7 @@
 ## How does it works
 NAP-FPM UI provides visibility to SecOps teams, for the different violations that exist on a SupportID and also gives the option to modify the NAP policy  with few simple clicks.
 
-<img src="fpm.gif"/>
+<img src="images/fpm.gif"/>
 
 
 ## Table of Contents
@@ -29,7 +29,7 @@ The source of truth for the *NGINX App Protect* policies should always be GitLab
 Once GitLab is up and running, **NAP-FPM** will use GitLab's API to pull and push changes made on the *NGINX App Protect* policies. In order for **NAP-FPM** to have permission to do so, we need to create a GITLAB Access-Token. This can be done under `Settings`->`Access Tokens` for the repository that holds the policies. The token needs to have read/write access to the repository.
 
 <p align="center">
-<img width="600" src="gitlab.png"/>       
+<img width="600" src="images/gitlab.png"/>       
 </p>
 
 >**Note:**  Please keep the Access token as we will need to use it when we configure **NAP-FPM**.
@@ -76,13 +76,13 @@ In this section we will take you through the steps on how to do the basic config
 Open your browser and connect to the IP address of the running container  
 
 <p align="center">
-<img width="400" src="login.png"/>       
+<img width="400" src="images/login.png"/>       
 </p>
 
 Log in with the default credentials (admin/admin) and you should be redirect you to the `settings.php` page.
 
 <p align="center">
-<img width="800" src="settings-2.png"/>       
+<img width="800" src="images/settings-2.png"/>       
 </p>
 
 > **Note:** You should see 2 warnings at the top of the page. This is due to the fact that neither GitLab nor Elastic datasources have been configured
@@ -90,15 +90,15 @@ Log in with the default credentials (admin/admin) and you should be redirect you
 Enter the URL for Elastic Datasource.
 
 <p align="center">
-<img width="800" src="datasource.png"/>       
+<img width="800" src="images/datasource.png"/>       
 </p>
 
 > **Note:** After you have validate the Datasource URL, you should be able to save the configuration. 
 
 Save Elastic Datasource. 
 
-<p align="left">
-<img width="250" src="datasource-success.png"/>       
+<p align="center">
+<img width="250" src="images/datasource-success.png"/>       
 </p>
 
 > **Note:** You will receive a message that the Datasource configuration has been saved.
@@ -107,7 +107,7 @@ Save Elastic Datasource.
 Click the `Add new` button and enter the GitLab details. 
 
 <p align="center">
-<img width="500" src="repo.png"/>
+<img width="500" src="images/repo.png"/>
 </p>
 
 > **Note:** It is important to enter the Foder/Path that the NAP Policies are saved.
@@ -116,7 +116,7 @@ Click the `Add new` button and enter the GitLab details.
 Save the GitLab Repo. 
 
 <p align="center">
-<img width="500" src="repo-success.png"/>       
+<img width="500" src="images/repo-success.png"/>       
 </p>
 
 > **Note:** You will receive a message that the Datasource configuration has been saved.
@@ -128,13 +128,13 @@ Once all the above steps are completed you can go to the `Violations` tab. You s
 We are able to Grafana with NAP-FPM, so that the user can click the Support ID on Grafana and be redirected to NAP-FPM. To achieve this we need to edit the Logs Tab and change the datalink to point to NAP-FPM
 
 <p align="left">
-<img src="logs.png"/>       
+<img src="images/logs.png"/>       
 </p>
 
 Once you are in edit mode, go to Overrides and change the datalink 
 
 <p align="left">
-<img width="200" src="datalink.png"/>       
+<img width="200" src="images/datalink.png"/>       
 </p>
 
 From:
@@ -150,7 +150,7 @@ http://<IP-Address>/violation.php?support_id=${__data.fields["Support ID"]}
 Once the change has been completed, you should be able to select the Support-ID and be automatically redirected to the FPM violations page.
 
 <p align="left">
-<img src="grafana-integration.gif"/>       
+<img src="images/grafana-integration.gif"/>       
 </p>
 
 ## Support
