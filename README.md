@@ -20,19 +20,21 @@ NAP-FPM UI provides visibility to SecOps teams, for the different violations tha
 In the following section we will describe how to deploy all the required components in order for **NAP-FPM** to work successfully. 
 
 
-### Deploy Elastic as the Datastore
+### Step 1. Deploy Elasticsearch to store NAP events
 **NAP-FPM** provides doesn't provide any Datastore to save *NGINX App Protect* events. For storing the NAP events we rely on Elasticsearch. Please refer to the <a href="https://github.com/skenderidis/nap-dashboard"> NAP-Dashboard </a> project that provides all the details on how to deploy `Elasticsearch`, `Logstash` and `Grafana` for *NGINX App Protect*.
 
-### Configure GitLab.
-The source of truth for the *NGINX App Protect* policies should always be GitLab. The GitLab repository should hold the latest version of the **WAF*** policies that have been deployed. <br>
-**NAP-FPM** will use GitLab's API to pull and push changes made on the *NGINX App Protect* policies. In order for **NAP-FPM** to have permission to do so, we need to create a GITLAB Access-Token. This can be done under `Settings`->`Access Tokens`. The token needs to have read/write access to the repository. 
+### Step2. Configure GitLab 
+The source of truth for the *NGINX App Protect* policies should always be GitLab. The GitLab repository should hold the latest version of the **WAF** policies that have been deployed. If you require information on how to install a self-managed GitLab instance, please refer to the following link. https://about.gitlab.com/install/
+
+Once GitLab is up and running, **NAP-FPM** will use GitLab's API to pull and push changes made on the *NGINX App Protect* policies. In order for **NAP-FPM** to have permission to do so, we need to create a GITLAB Access-Token. This can be done under `Settings`->`Access Tokens` for the repository that holds the policies. The token needs to have read/write access to the repository.
 
 <p align="center">
 <img width="600" src="gitlab.png"/>       
 </p>
->**Note:** If you require information on how to install GitLab onprem, please refere to the following link. https://about.gitlab.com/install/ 
 
-### Deploy NAP-FPM docker instance.
+>**Note:**  Please keep the Access token as we will need to use it when we configure **NAP-FPM**.
+
+### Step 3. Deploy NAP-FPM docker image.
 We provide 2 options on how to deploy the NAP-FPM as a docker container.
 
 **First option** is to use the docker image that is already configured and pushed to DockerHub. To deploy this image simply run the following on your Docker station.
@@ -65,7 +67,7 @@ Ready to connect.
   docker run -d -p 80:80 -v fpm-volume:/etc/fpm  skenderidis/nap-fpm:latest
   ```
 
-> Note: If you require FPM to run inside K8s please open a GitHub issue.
+> Note: If you require **NAP-FPM** to run inside K8s please open a GitHub issue.
 
 
 ## Configuration
@@ -73,8 +75,8 @@ In this section we will take you through the steps on how to do the basic config
 
 Open your browser and connect to the IP address of the running container  
 
-<p align="left">
-<img width="500" src="login.png"/>       
+<p align="center">
+<img width="400" src="login.png"/>       
 </p>
 
 Log in with the default credentials (admin/admin)
@@ -124,4 +126,32 @@ Once all the above steps are completed you can go to the `Violations` tab. You s
 
 
 ## Integration with Grafana
+We are able to Grafana with NAP-FPM, so that the user can click the Support ID on Grafana and be redirected to NAP-FPM. To achieve this we need to edit the Logs Tab and change the datalink to point to NAP-FPM
 
+<p align="left">
+<img src="logs.png"/>       
+</p>
+
+Once you are in edit mode, go to Overrides and change the datalink 
+
+<p align="left">
+<img width="200" src="datalink.png"/>       
+</p>
+
+From:
+
+```
+/d/nap-supportid/supportid?var-SupportID=${__value.raw}
+```
+
+To:
+
+```
+http://<IP-Address>/violation.php?support_id=${__data.fields["Support ID"]}
+```
+
+Once the change has been completed, you should be able to select the Support-ID and be automatically redirected to the FPM violations page.
+
+<p align="left">
+<img src="grafana-integration.gif"/>       
+</p>
