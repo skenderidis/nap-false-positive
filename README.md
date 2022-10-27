@@ -1,6 +1,5 @@
 # NAP - False Positive Management
-> NAP-FPM makes it easier for SecOps teams to manage False Positives and do the required changes to the NGINX App Protect policies.
-
+> This is a project makes it easier for SecOps teams to manage False Positives and do the required configuration changes to the NGINX App Protect policies by providing a UI.
 
 ## How does it works
 NAP-FPM UI provides visibility to SecOps teams, for the different violations that exist on a SupportID and also gives the option to modify the NAP policy  with few simple clicks.
