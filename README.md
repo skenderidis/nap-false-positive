@@ -79,9 +79,8 @@ Open your browser and connect to the IP address of the running container
 <img width="400" src="login.png"/>       
 </p>
 
-Log in with the default credentials (admin/admin)
+Log in with the default credentials (admin/admin) and you should be redirect you to the `settings.php` page.
 
-You should be redirect you to the `settings.php` page.
 <p align="center">
 <img width="800" src="settings-2.png"/>       
 </p>
@@ -153,3 +152,7 @@ Once the change has been completed, you should be able to select the Support-ID 
 <p align="left">
 <img src="grafana-integration.gif"/>       
 </p>
+
+## Support
+
+For support, please open a GitHub issue. Note, the code in this repository is community supported and is not supported by F5 Networks.
