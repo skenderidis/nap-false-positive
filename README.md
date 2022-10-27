@@ -82,7 +82,7 @@ Open your browser and connect to the IP address of the running container
 Log in with the default credentials (admin/admin)
 
 You should be redirect you to the `settings.php` page.
-<p align="left">
+<p align="center">
 <img width="800" src="settings-2.png"/>       
 </p>
 
@@ -90,7 +90,7 @@ You should be redirect you to the `settings.php` page.
 
 Enter the URL for Elastic Datasource.
 
-<p align="left">
+<p align="center">
 <img width="800" src="datasource.png"/>       
 </p>
 
@@ -107,7 +107,7 @@ Save Elastic Datasource.
 
 Click the `Add new` button and enter the GitLab details. 
 
-<p align="left">
+<p align="center">
 <img width="500" src="repo.png"/>
 </p>
 
@@ -116,7 +116,7 @@ Click the `Add new` button and enter the GitLab details.
 
 Save the GitLab Repo. 
 
-<p align="left">
+<p align="center">
 <img width="500" src="repo-success.png"/>       
 </p>
 
@@ -139,13 +139,11 @@ Once you are in edit mode, go to Overrides and change the datalink
 </p>
 
 From:
-
 ```
 /d/nap-supportid/supportid?var-SupportID=${__value.raw}
 ```
 
 To:
-
 ```
 http://<IP-Address>/violation.php?support_id=${__data.fields["Support ID"]}
 ```
