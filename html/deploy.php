@@ -280,7 +280,7 @@
 
 	#### Verify that the Policy exists and get contents exists
 	$policy_content = get_policy($project, $token,  $id, $gitlab, $path, $policy, $branch);
-	echo $policy_content;
+
 	if ($policy_content == -2)
 	{
 		echo '
