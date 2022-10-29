@@ -280,6 +280,31 @@
 														<tr>
 															<td style="text-align:right">Violations:</td>
 															<td colspan=3><b><?php echo implode("<br>", $json_data["violations"]); ?></b></td>
+														</tr>									
+														<tr>
+															<td style="text-align:right">Blocking Indicators:</td>
+															<td colspan=3><b>
+															<?php 
+																echo "<table border=1><tr width='200' bgcolor='white'><td>Violation Name</td><td>Status</td><tr>";
+																$json_viol = json_decode($json_data["json_log"], true); 
+																foreach ($json_viol["viloations"] as $vil)
+																{
+																	echo '<tr> <td>' . $vil["violation"]["name"] . "</td>";
+																	if ($vil["enforcementState"]["isBlocked"])
+																	{
+																		echo '<td> <img class="image_violation" src="images/blocked.png"> </td>';
+																	}
+																	else
+																	{
+																		echo '<td>  <img class="image_violation" src="images/alerted.png"> </td></tr>';
+																	}
+																}
+																echo "</table>";
+
+															?>
+															
+														</b></td>  
+										
 														</tr>											
 														<tr>
 															<td style="text-align:right">Sub-violations:</td>
