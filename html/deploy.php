@@ -177,8 +177,10 @@
 			'Accept: application/json, text/javascript, */*; ',
 			'PRIVATE-TOKEN: ' . $token
 			);
-	
-			$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
+			if ($path=="")
+				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
+			else
+				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
 
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -212,7 +214,10 @@
 			'Accept: application/json, text/javascript, */*; ',
 			'PRIVATE-TOKEN: ' . $token
 			);
-			$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
+			if ($path == "")
+				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
+			else
+				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
 
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -275,7 +280,7 @@
 
 	#### Verify that the Policy exists and get contents exists
 	$policy_content = get_policy($project, $token,  $id, $gitlab, $path, $policy, $branch);
-
+	echo $policy_content;
 	if ($policy_content == -2)
 	{
 		echo '
@@ -296,7 +301,6 @@
 		</div>';
 		exit();
 	}
-
 	if (!json_validate(base64_decode($policy_content)))
 	{
 		echo '
@@ -306,7 +310,6 @@
 		</div>';		
 		exit();
 	}
-		
 	file_put_contents("policy.json",base64_decode($policy_content));
 	
 	$run_python_script = 'python3 modify-nap.py ' . $policy_data ;
