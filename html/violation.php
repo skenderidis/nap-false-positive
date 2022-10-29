@@ -289,7 +289,7 @@
 																$json_viol = json_decode($json_data["json_log"], true); 
 																foreach ($json_viol["viloations"] as $vil)
 																{
-																	echo '<tr> <td>' . $vil["violation"]["name"] . "</td>";
+																	echo '<tr> <td width="250">' . $vil["violation"]["name"] . "</td>";
 																	if ($vil["enforcementState"]["isBlocked"])
 																	{
 																		echo '<td> <img class="image_violation" src="images/blocked.png"> </td>';
