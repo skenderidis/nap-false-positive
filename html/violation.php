@@ -285,18 +285,18 @@
 															<td style="text-align:right">Blocking Indicators:</td>
 															<td colspan=3><b>
 															<?php 
-																echo "<table border=1><tr width='200' bgcolor='white'><td>Violation Name</td><td>Status</td><tr>";
+																echo "<table style='width:50%'class='table table-bordered table-striped table-violation'><tr bgcolor='white'><td><b>Violation Name</b></td><td><b>Status</b></td><tr>";
 																$json_viol = json_decode($json_data["json_log"], true); 
 																foreach ($json_viol["viloations"] as $vil)
 																{
-																	echo '<tr> <td width="250">' . $vil["violation"]["name"] . "</td>";
+																	echo '<tr> <td>' . $vil["violation"]["name"] . "</td>";
 																	if ($vil["enforcementState"]["isBlocked"])
 																	{
-																		echo '<td> <img class="image_violation" src="images/blocked.png"> </td>';
+																		echo '<td> Blocked <img align="right" class="image_violation" src="images/blocked.png"> </td>';
 																	}
 																	else
 																	{
-																		echo '<td>  <img class="image_violation" src="images/alerted.png"> </td></tr>';
+																		echo '<td> Alerted <img align="right" class="image_violation" src="images/alerted.png"> </td></tr>';
 																	}
 																}
 																echo "</table>";
