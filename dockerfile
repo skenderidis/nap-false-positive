@@ -1,5 +1,5 @@
 FROM php:7.4-apache
-RUN apt-get update && apt-get install -y apt-transport-https lsb-release ca-certificates nano
+RUN apt-get update && apt-get install -y apt-transport-https lsb-release ca-certificates nano php-yaml
 
 # Install python 3.9
 RUN apt install software-properties-common -y
