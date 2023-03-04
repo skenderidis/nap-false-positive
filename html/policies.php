@@ -20,53 +20,58 @@ $scan = scandir($dir);
 
 foreach($scan as $file)
 {
+   
     if (is_dir($dir.$file) and !($file=="." || $file==".."))
     {
 		array_push ($policies, $file);
     }
 }
-
 $policies_count = sizeof($policies);
 $config_files = [];
+
 if ($policies_count >0 )
 {
 
 	foreach($policies as $file)
 	{
 
-		if(file_exists("config_files/".$file."/config.json"))
+		if(file_exists("config_files/".$file."/info.json"))
 		{
-			$string = file_get_contents("config_files/".$file."/config.json");
+			$string = file_get_contents("config_files/".$file."/info.json");
 			$config = json_decode($string, true);
 
 			$name =$config['name'];
-			$gitlab =$config['gitlab'];
-			$token =$config['token'];
-			$user =$config['user'];
-			$owasp =$config['owasp'];
-			$warnings =$config['warnings'];
-			$mode =$config['mode'];
+			$git =$config['git'];
+			$nap_name =$config['nap_name'];
+			$enforcement =$config['enforcement'];
 
 		}
 		else
 		{
 			$name = "-";
-			$gitlab = "-";
-			$token = "-";
-			$user = "-";
-			$owasp = "-";
-			$warnings = "-";		
-			$file = "-";
-			$mode = "-";
+			$git = "-";
+			$nap_name = "-";
+			$enforcement = "-";
+
 		}
 
-		array_push ($config_files, json_decode('{"name":"'.$name.'", "gitlab":"'.$gitlab.'", "token":"'.$token.'", "user":"'.$user.'", "owasp":"'.$owasp.'", "warnings":"'.$warnings.'", "mode":"'.$mode.'", "owasp":"'.$owasp.'", "file":"'.$file.'"}', true));
+		array_push ($config_files, json_decode('{"name":"'.$name.'", "git":"'.$git.'", "nap_name":"'.$nap_name.'", "enforcement":"'.$enforcement.'"}', true));
 	}
 }
 else 
 {
-array_push ($config_files, json_decode('{"name":"No Policies found", "gitlab":"-", "token":"-", "user":"-", "owasp":"-", "warnings":"-",  "mode":"-", "owasp":"-", "file":"-"}', true));
+array_push ($config_files, json_decode('{"name":"-", "git":"-", "nap_name":"No Policies found", "enforcement":"-"}', true));
+$display="hidden";
 }
+
+// Read the JSON file 
+$file = file_get_contents('/etc/fpm/git.json');
+      
+// Decode the JSON file
+$git_data = json_decode($file,true);
+
+//print_r($config_files);
+//exit();
 
 ?>
 <!doctype html>
@@ -75,8 +80,7 @@ array_push ($config_files, json_decode('{"name":"No Policies found", "gitlab":"-
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="description" content="">
-      <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-      <meta name="generator" content="Hugo 0.84.0">
+      <meta name="author" content="Kostas Skenderidis">
       <title>NAP Policy Review</title>
       <link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -106,16 +110,22 @@ array_push ($config_files, json_decode('{"name":"No Policies found", "gitlab":"-
             <nav id="sidebarMenu" class="col-md-1 col-lg-1 d-md-block bg-light sidebar collapse">
                <div class="position-sticky pt-3">
                   <ul class="nav flex-column">
-                     <li class="nav-item" style="background-color:#d2d8dc">
-                        <a class="nav-link active" aria-current="page" href="#">
-                        <span data-feather="home"></span>
-                        Policies
-                        </a>
-                     </li>
                      <li class="nav-item" >
                         <a class="nav-link" href="violation.php">
                         <span data-feather="file"></span>
                         Violations
+                        </a>
+                     </li>
+							<li class="nav-item" style="background-color:#d2d8dc">
+                        <a class="nav-link active" aria-current="page" href="policies.php">
+                        <span data-feather="home"></span>
+                        	Policies
+                        </a>
+                     </li>
+							<li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="settings.php">
+                        <span data-feather="home"></span>
+                        	Settings
                         </a>
                      </li>
                   </ul>
@@ -124,122 +134,105 @@ array_push ($config_files, json_decode('{"name":"No Policies found", "gitlab":"-
             <main class="col-md-11 ms-sm-auto col-lg-09 px-md-4">
 
 
-									<div class="row">
-										<div class="col-8">
-												<div class="panel">
-													<div class="title"> Parameters </div>
-													<div class="line"></div>
-													<div class="content">
-														<table id="overall" class="table table-striped table-bordered" style="width:100%; font-size:12px">
-															<thead>
-																<tr>
-																<th>Policies</th>
-																<th style="width: 250px; text-align:left;">Git Repository</th>
-																<th style="width: 80px; text-align:center;">Mode</th>
-																<th style="width: 100px; text-align:center;;">Warnings</th>
-																<th style="width: 100px; text-align:center;">OWASP TOP 10</th>
-																</tr>
-															</thead>
-															<tbody style="text-align: center; vertical-align: middle;">
-														
-																
-																<?php 	
-																	foreach($config_files as $key)
-																	{	
-																			$result = $key["owasp"];	
-																			$mode = $key["mode"];	
-																			if ($mode =="blocking")
-																				$mode_value = '<span  style="font-size:14px; color: green;"><b>Blocking</b></span>';
-																			if ($mode =="transparent")
-																				$mode_value = '<span  style="font-size:14px; color: red;"><b>Transparent</b<</span>';
+               <div class="row">
+                  <div class="col-8">
+                        <div class="panel">
+                           <div class="title"> Parameters </div>
+                           <div class="line"></div>
+                           <div class="content">
+                              <table id="overall" class="table table-striped table-bordered" style="width:100%; font-size:12px">
+                                 <thead>
+                                    <tr>
+                                    <th>Policy Name</th>
+                                    <th style="width: 100px; text-align:center;;">Policy Filename</th>
+                                    <th style="width: 350px; text-align:left;">Git Repository</th>
+                                    <th style="width: 80px; text-align:center;">Mode</th>
+                                    <th style="width: 60px; text-align:center;">Actions</th>
 
-																			if ($result <5)
-																				$owasp_score = '<span class="badge" style="font-size:16px; padding:7px 15px; background-color:red">'.$result.'/10</span>';
+                                    </tr>
+                                 </thead>
+                                 <tbody style="text-align: center; vertical-align: middle;">
+                              
+                                    
+                                    <?php
+                                       $x=0;
+                                       foreach($config_files as $key)
+                                       {	
+                                          $mode = $key["enforcement"];	
+                                          if ($mode =="blocking")
+                                             $mode_value = '<b><span style="font-size:16px; padding:7px 15px; color:green;">'.$mode.'</span></b>';
+                                          if ($mode =="transparent")
+                                             $mode_value = '<b><span style="font-size:16px; padding:7px 15px; color:#fd7e14;">'.$mode.'</span></b>';
+                                          echo '
+                                             <tr id="row_'.$x.'">
+                                                <td style="text-align: left; font-weight: bold; "><a href="policy.php?policy='.$key['name'].'">'.$key['nap_name'].'</a></td>
+                                                <td style="text-align: left;">'.$key['name'].'</td>
+                                                <td style="text-align: left;">'.$key['git'].'</td>
+                                                <td>'.$mode_value.'</td>
+                                                <td class="'.$display.'"><button val="'.$key['name'].'" class="btn btn-sm btn-primary sync_button sync_'.$x.'" id="sync_'.$x.'"><i class="fa fa-refresh"></i> </button> <button val="'.$key['name'].'" class="btn btn-sm btn-dark delete_button del_'.$x.'" id="del_'.$x.'"><i class="fa fa-trash"></i> </button></td>
+                                             </tr>';
+                                          $x=$x+1;
+                                       }
+                                       ?>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                  </div>
+                        
+                  <div class="col-4">
+                        <div class="panel">
+                           <div class="title"> Import Policies </div>
+                           <div class="line"></div>
+                           <div class="content">
 
-																			if ($result >=6 && $result <8)
-																				$owasp_score = '<span class="badge" style="font-size:16px; padding:7px 15px;background-color:orange ">'.$result.'/10</span>';
+                              <form  class="row g-3" action="import.php" method="post" autocomplete="off">
 
-																			if ($result >=8)
-																				$owasp_score = '<span class="badge" style="font-size:16px; padding:7px 15px; background-color:green;">'.$result.'/10</span>';
+                                 <div class="col-md-12 violation_form vars">
+                                    <label class="form-label">Repositories</label>
+                                    <select id="git" name="git_uuid" class="form-select">
+                                       <option value=0>Choose...</option>
+                                          <?php
+                                          
+                                          foreach ($git_data as $git)
+                                          {
+                                             echo '<option value="'.$git['uuid'].'">'.$git['fqdn'].'/'.$git['project'].'/'.$git['path'].'</option>';
+                                          }
+                                          
+                                          ?>
+                                    </select>
+                                 </div>
 
-																			if ($result =="-")
-																				$owasp_score = '<span class="badge" style="font-size:16px; padding:4px 10px 10px 8px; background-color:gray">-</span>';
+                                 <div class="row">
+                                    <div class="col-md-9 mb-9" style="text-align:left">
+                                       <button class="btn btn-success" type="submit"> Import</button>
+                                    </div>
+                                    
+                                 </div>	
 
-																		echo '
-																	<tr >
-																		<td style="text-align: left; font-weight: bold; "><a href="policy.php?policy='.$key['name'].'">'.$key['name'].'</a></td>
-																		<td style="text-align: left;">'.$key['gitlab'].'</td>
-																		<td>'.$mode_value.'</td>
-																		<td><b>'.$key['warnings'].'</b></td>
-																		<td>'.$owasp_score.'</td>
-																	</tr>';
-																	}
-																	?>
-															</tbody>
-														</table>
-													</div>
-												</div>
-										</div>
-												
-										<div class="col-4">
-												<div class="panel">
-													<div class="title"> Import Policies </div>
-													<div class="line"></div>
-													<div class="content">
+                              </form>
 
-													
-													<form  class="row g-3" action="import.php" method="post" autocomplete="off">
+                           </div>
+                        </div>
 
+                        <div class="panel">
+                           <div class="title"> Delete All Policies  </div>
+                           <div class="line"></div>
+                           <div class="content">
 
-														<div class="col-md-8 violation_form vars">
-															<label class="form-label">Repository Address</label>
-															<input type="text" class="form-control" id="repo_address" placeholder="https://git.f5demo.cloud/nap-policies">
-														</div>
-														<div class="col-md-4 ip_form vars">
-															<label class="form-label">Delete existing data</label>
-																<select class="custom-select d-block w-100 form-control" name="delete_policies" required="">
-																	<option value="yes">Yes</option>
-																	<option value="no" selected="">No</option>
-																</select>
-														</div>
-														<div class="col-md-6 signature_form vars">
-															<label class="form-label">Git Username</label>
-															<input type="text" class="form-control" id="git_user" placeholder="Username">
-														</div>
-														<div class="col-md-6 metachar_form vars">
-															<label class="form-label">Git Token</label>
-															<input type="password" class="form-control" id="git_token" placeholder="Password">
-														</div>	
-															<div class="row">
-																<div class="col-md-9 mb-9" style="text-align:left">
-																	<button class="btn btn-success" type="submit"> Import</button>
-																</div>
-																
-															</div>	
+                                 <div class="row">
+                                    <div class="col-md-9 mb-9" style="text-align:left">
+                                       <button class="btn btn-danger" id="delete" onclick="return confirm('This will delete the existing audit files')"> Delete</button>
+                                    </div>
+                                    
+                                 </div>	
 
-														</form>
+                           </div>
+                        </div>											
 
-													</div>
-												</div>
+                  </div>
 
-												<div class="panel">
-													<div class="title"> Delete All Policies  </div>
-													<div class="line"></div>
-													<div class="content">
-
-															<div class="row">
-																<div class="col-md-9 mb-9" style="text-align:left">
-																	<button class="btn btn-danger" id="delete" onclick="return confirm('This will delete the existing audit files')"> Delete</button>
-																</div>
-																
-															</div>	
-
-													</div>
-												</div>											
-
-										</div>
-
-									</div>
+               </div>
 
 
 
@@ -281,4 +274,93 @@ array_push ($config_files, json_decode('{"name":"No Policies found", "gitlab":"-
 				"order": [[0, 'desc']]
 		} );	
 	} );
+</script>
+
+
+<script>
+   $(".sync_button").click(function() {
+      
+      var button = this.id;
+      var row = $(this).closest("tr").attr('id')
+      var policy = $(this).closest("button").attr('val')
+      $(this).html('<i class="fa fa-spinner fa-pulse"></i>');
+      $.ajax({
+            method: "POST",
+            url: "sync-policies.php",
+            data: {
+               policy: policy,
+            }
+         })
+         .done(function() {
+            setTimeout(function() {
+               $("."+button).html('<i class="fa fa-refresh"></i>');
+               $("#"+row).remove();
+            }, 1000);
+            
+         })
+         .fail(function(jqXHR, textStatus, Status) {
+            setTimeout(function() {
+               alert("Failed to sync policy");
+               $("."+button).html('<i class="fa fa-refresh"></i>');
+            }, 1000);
+         });
+	} );
+</script>
+
+
+<script>
+   $(".delete_button").click(function() {
+      var button = this.id;
+      var row = $(this).closest("tr").attr('id')
+      var policy = $(this).closest("button").attr('val')
+      $(this).html('<i class="fa fa-spinner fa-pulse"></i>');
+      $.ajax({
+            method: "POST",
+            url: "delete-policies.php",
+            data: {
+               policy: policy,
+               all: "no"
+            }
+         })
+         .done(function() {
+            setTimeout(function() {
+               $("."+button).html('<i class="fa fa-trash"></i>');
+               $("#"+row).remove();
+            }, 1000);
+            
+         })
+         .fail(function(jqXHR, textStatus, Status) {
+            setTimeout(function() {
+               alert("Failed to delete policy");
+               $("."+button).html('<i class="fa fa-trash"></i>');
+            }, 1000);            
+
+         });
+      });
+</script>
+
+
+<script>
+   $("#delete").click(function() {
+      $.ajax({
+            method: "POST",
+            url: "delete-policies.php",
+            data: {
+               all: "yes"
+            }
+         })
+         .done(function() {
+            setTimeout(function() {
+               location.reload();
+            }, 1000);
+            
+         })
+         .fail(function(jqXHR, textStatus, Status) {
+            setTimeout(function() {
+               alert("Failed to delete policies");
+            }, 1000);            
+
+         });
+   
+      });
 </script>

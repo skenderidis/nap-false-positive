@@ -13,16 +13,18 @@
 		exit();
 	}
 
-
-  $json = file_get_contents('/etc/fpm/gitlab.json');
-  $json_data = json_decode($json,true);
-	$gitlab = "var gitlab = " . json_encode($json_data)  . " ;";
+   $json = file_get_contents('/etc/fpm/git.json');
+   $json_data = json_decode($json,true);
+	
+   $git = "var git = " . json_encode($json_data)  . " ;";
 
 	$ds_content=file_get_contents("/etc/fpm/datasource.json");
 	$ds_content_json = json_decode($ds_content, true);
 
+
 	$error_git=0;
 	$error_git_msg="";
+
 	if(sizeof($ds_content_json)==0) {
 		$error_git=1;
 		$error_git_msg='<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -36,7 +38,7 @@
 	if(sizeof($json_data)==0) {
 		$error_ds=1;
 		$error_ds_msg='<div class="alert alert-warning alert-dismissible fade show" role="alert">
-			<strong>Error!</strong> GitLab NOT configured. You will need to configure at least 1 GitLab destination to be able to modify the NAP configuration.
+			<strong>Error!</strong> Git NOT configured. You will need to configure at least 1 Git destination to be able to modify the NAP configuration.
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>';		
 	}
@@ -80,24 +82,24 @@
             <nav id="sidebarMenu" class="col-md-1 col-lg-1 d-md-block bg-light sidebar collapse">
                <div class="position-sticky pt-3">
                   <ul class="nav flex-column">
-											<li class="nav-item">
+							<li class="nav-item">
                         <a class="nav-link " href="violation.php">
                         <span data-feather="file"></span>
                         Violations
                         </a>
-                     	</li>
-										 	<li class="nav-item" hidden>
+                     </li>
+							<li class="nav-item">
                         <a class="nav-link" aria-current="page" href="policies.php">
                         <span data-feather="home"></span>
                         	Policies
                         </a>
-                     	</li>
-										 	<li class="nav-item"  style="background-color:#d2d8dc">
+                     </li>
+							<li class="nav-item"  style="background-color:#d2d8dc">
                         <a class="nav-link active" aria-current="page" href="settings.php">
                         <span data-feather="home"></span>
                         	Settings
                         </a>
-                     	</li>
+                     </li>
                   </ul>
                </div>
             </nav>
@@ -117,20 +119,21 @@
 									<div class="col-12">
 
 										<div class="panel">
-											<div class="title">Manage GitLab Repos  <button type="button" class="btn btn-success" id="save" style="float: right; padding: 0.2rem 0.5rem;" disabled>Save</button>  
-											<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gitlab_modal"  id="add_new" style="float: right; margin-right: 20px; padding: 0.2rem 0.5rem;">Add new</button></div>
+											<div class="title">Manage Git Repos  <button type="button" class="btn btn-success" id="save" style="float: right; padding: 0.2rem 0.5rem;" disabled>Save</button>  
+											<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#git_modal"  id="add_new" style="float: right; margin-right: 20px; padding: 0.2rem 0.5rem;">Add new</button></div>
 											<div class="line"></div>
 											<div class="content">
-												<table id="gitlab" class="table table-striped table-bordered" style="width:100%">
+												<table id="git" class="table table-striped table-bordered" style="width:100%">
 														<thead>
 															<tr>
-															<th> Gitlab FQDN</th>
-															<th style="width: 150px; text-align: center;">Project</th>
-															<th style="width: 150px; text-align: center;">Path</th>
-															<th style="width: 150px; text-align: center;">Format</th>
-															<th style="width: 150px; text-align: center;">Token</th>
-															<th style="width: 100px; text-align: center;">Branch</th>
-															<th style="width: 15px; text-align: center;"></th>
+															<th> Git FQDN</th>
+                                                <th style="width: 150px; text-align: center;">Project</th>
+                                                <th style="width: 150px; text-align: center;">Path</th>
+                                                <th style="width: 150px; text-align: center;">Format</th>
+                                                <th style="width: 150px; text-align: center;">Token</th>
+                                                <th style="width: 100px; text-align: center;">Branch</th>
+                                                <th style="width: 70px; text-align: center;">Type</th>
+                                                <th style="width: 15px; text-align: center;"></th>
 															</tr>
 														</thead>
 													</table>	
@@ -237,11 +240,11 @@
 </html>
 
    <!-- Modal -->
-	<div class="modal fade" id="gitlab_modal" tabindex="-1" aria-labelledby="gitlab_modal" aria-hidden="true">
+	<div class="modal fade" id="git_modal" tabindex="-1" aria-labelledby="git_modal" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
     		<div class="modal-header">
-					<h5 class="modal-title" id="modal_title">Add new GitLab Repo</h5>
+					<h5 class="modal-title" id="modal_title">Add new Git Repo</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       	</div>
 	  
@@ -251,7 +254,7 @@
 						<form class="row g-3">
 							<div class="col-md-5 vars">
 								<label class="form-label">Repo FQDN</label>
-								<input type="text" class="form-control" placeholder="https://www.gitlab.com" id="gitlab_fqdn">
+								<input type="text" class="form-control" placeholder="https://www.git.com" id="git_fqdn">
 							</div>
 							<div class="col-md-4 vars">
 								<label class="form-label">Project</label>
@@ -269,16 +272,31 @@
 								<input type="text" class="form-control" placeholder="folder that the policies are stored" id="path">
 							</div>
 
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<label class="form-label">Token</label>
 								<input type="password" class="form-control" placeholder="token" id="token">
 							</div>
 
-							<div class="col-md-3">
+							<div class="col-md-2">
 								<label class="form-label">Branch</label>
 								<input type="text" class="form-control" placeholder="branch" id="branch">
 							</div>
-							
+
+							<div class="col-md-2" hidden>
+								<label class="form-label">ID</label>
+								<input type="text" class="form-control" placeholder="id" id="git_id">
+								<input type="text" class="form-control" placeholder="uuid" id="git_uuid">
+							</div>
+
+							<div class="col-md-3 vars">
+								<label class="form-label">Type</label>
+								<select class="form-select" id="type">
+									<option value="gitlab" selected>GitLab</option>
+									<option value="gitea">Gitea</option>
+									<option value="github" disabled>GitHub</option>
+									<option value="bitbucket" disabled>Bitbucket</option>
+								</select>
+							</div>									
 							<div class="col-md-10 violation_form vars">
 								<label class="form-label">Complete URL</label>
 								<input type="text" class="form-control" id="complete_url" disabled>
@@ -306,19 +324,20 @@
 
 <!-- SENSITIVE PARAMS -->
 <script>
-	<?php echo $gitlab; ?>
+	<?php echo $git; ?>
 		$(document).ready(function() {
-			var table = $('#gitlab').DataTable( {
+			var table = $('#git').DataTable( {
 				"searching": false,
 				"info": false,
-				"data": gitlab,
+				"data": git,
 				"createdRow": function( row, data, dataIndex ) {
 				  $('td', row).eq(4).html("xxxxxxxxxxxxxxx");  
-				  $('td', row).eq(6).html("<i class='fa fa-trash fa-2x' ></i>");  
-			  },
-        columnDefs: [
-            {target: 7,visible: false,searchable: false,}
-        ],				
+				  $('td', row).eq(7).html("<i class='fa fa-trash fa-2x' ></i>");  
+			   },
+            "columnDefs": [
+               {target: 8,visible: false,searchable: false,},
+               {target: 9,visible: false,searchable: false,}
+            ],				
 				"columns": [
 					{ "className": 'bold',"data": "fqdn" },
 					{ "className": 'attacks',"data": "project" },
@@ -326,8 +345,10 @@
 					{ "className": 'attacks',"data": "format" },
 					{ "className": 'attacks',"data": "token" },
 					{ "className": 'attacks',"data": "branch" },
+					{ "className": 'attacks',"data": "type"},
 					{ "className": 'delete_button',"data": null},
-					{ "className": 'attacks',"data": "id" }
+               { "className": 'attacks',"data": "id" },
+					{ "className": 'attacks',"data": "uuid", "default":""}
 					],
 					"autoWidth": false,
 					"processing": true,
@@ -335,7 +356,7 @@
 			} );	
 
 
-			$('#gitlab tbody').on( 'click', '.delete_button', function () {
+			$('#git tbody').on( 'click', '.delete_button', function () {
 
 				var idx = table.row(this).index();
 
@@ -350,7 +371,7 @@
 
 <script>
 	$( "#save" ).click(function() {
-		var table = $('#gitlab').DataTable();
+		var table = $('#git').DataTable();
 		var payload = "["
 		var i;
 		for (i = 0; i < table.rows().count(); i++) { 
@@ -364,18 +385,19 @@
 			var format = table.cell( i, 3).data();
 			var token = table.cell( i, 4).data();
 			var branch = table.cell( i, 5).data();
-			var id = table.cell( i, 7).data();
+			var id = table.cell( i, 8).data();
+			var uuid = table.cell( i, 9).data();
+			var type = table.cell( i, 6).data();
 			if(i>0)
 			{
 				payload = payload + ', ';
 			}
-			payload = payload + '{"id":'+i+',"fqdn":"'+fqdn+'","project":"'+project+'","path":"'+ path +'","format":"'+ format +'","token":"'+token+'","branch":"'+branch+'"}';
-
+			payload = payload + '{"id":'+id+',"fqdn":"'+fqdn+'","project":"'+project+'","path":"'+ path +'","format":"'+ format +'","token":"'+token+'","branch":"'+branch+'","uuid":"'+uuid+'","type":"'+type+'"}';
 		}
 		payload = payload + "]"
 
 	console.log(payload);
-	$.post( "save-gitlab.php",  { gitlab: payload})
+	$.post( "save-git.php",  { git: payload})
 	.done(function( data ) {
     $(".error_msg").append(data);
   });
@@ -384,11 +406,11 @@
 
 <script>
 	$( ".form-control" ).change(function() {
-		var gitlab_fqdn = $('#gitlab_fqdn').val();
-		if (gitlab_fqdn=="")
-			var gitlab_fqdn = "";
+		var git_fqdn = $('#git_fqdn').val();
+		if (git_fqdn=="")
+			var git_fqdn = "";
 		else
-			var gitlab_fqdn = $('#gitlab_fqdn').val()+"/";		
+			var git_fqdn = $('#git_fqdn').val()+"/";		
 		var project_name = $('#project_name').val();
 		if (project_name=="")
 			var project_name = "";
@@ -399,66 +421,79 @@
 			var path = "";
 		else
 			var path = $('#path').val()+"/";
-		$('#complete_url').val(gitlab_fqdn+project_name+path);
+		$('#complete_url').val(git_fqdn+project_name+path);
 	});
 </script>
 
 <script>
 	$( "#validate" ).click(function() {
-		var gitlab_fqdn = $('#gitlab_fqdn').val();
+		var git_fqdn = $('#git_fqdn').val();
 		var project_name = $('#project_name').val();
 		var path = $('#path').val();
 		var branch = $('#branch').val();
 		var token = $('#token').val();
-
+		var type = $("#type option:selected").val();
+      
 		$.ajax({
-				method: "POST",
-				url: "verify-gitlab.php",
-				data:  {gitlab_fqdn: gitlab_fqdn, 
-								project_name:project_name, 
-								path:path, 
-								token:token, 
-								branch:branch
-				}
-			})
-			.done(function( msg ) {
-				$("#results").append(msg);
-				$(".results").show();
-				if (msg.includes("Success"))
-				{
-					$('#add_row').removeAttr("disabled");
-				}
-				else
-				{
-					$('#add_row').attr("disabled", true);					
-				}
-			})
-			.fail(function( jqXHR, textStatus, Status  ) {
-				$(".results").append("<h5><span style='color:red'> Something went wrong</span></h5>");
-				$('#add_row').attr("disabled", true);
+         method: "POST",
+         url: "verify-git.php",
+         data:  {git_fqdn: git_fqdn, 
+                     project_name:project_name, 
+                     path:path, 
+                     token:token, 
+                     branch:branch,
+                     type:type
+         }
+		})
+      .done(function( msg ) {
+         $(".results").show();
+         if (!msg.includes("Failed"))
+         {
+            console.log(msg);
+            $('#add_row').removeAttr("disabled");
+            $("#results").append('<div class="alert alert-success alert-dismissible fade show" role="alert"><b>Success!</b><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+            
+            var json_data = JSON.parse(msg);
+            $("#git_id").val(json_data.id);
+            $("#git_uuid").val(json_data.uuid);
 
-			})
+         }
+         else
+         {
+            $("#add_row").attr("disabled", true);
+            $("#results").append(msg);
+         }
+      })
+      .fail(function( jqXHR, textStatus, Status  ) {
+         $(".results").append("<h5><span style='color:red'> Something went wrong</span></h5>");
+         $("#add_row").attr("disabled", true);
+
+      })
 	});
 </script>
 
 <script>
 	$( "#add_row" ).click(function() {
-		var table = $('#gitlab').DataTable();
-		var gitlab_fqdn = $( "#gitlab_fqdn" ).val();
+		var table = $('#git').DataTable();
+		var git_fqdn = $( "#git_fqdn" ).val();
 		var project_name = $( "#project_name" ).val();
 		var format = $("#format option:selected").val();
-		var path = $( "#path" ).val();
-		var token = $( "#token" ).val();
-		var branch = $( "#branch" ).val();
-
+		var path = $("#path").val();
+		var token = $("#token").val();
+		var branch = $("#branch").val();
+		var id = $("#git_id").val();
+		var uuid = $("#git_uuid").val();
+		var type = $("#type option:selected").val();
 		table.row.add( {
-				"fqdn": gitlab_fqdn,
+				"fqdn": git_fqdn,
 				"project": project_name,
 				"path": path,
 				"format": format,
 				"token": token,
-				"id":555,
-				"branch": branch
+				"id":id,
+				"branch": branch,
+				"type": type,
+            "uuid": uuid
 			} ).draw();
 			
 

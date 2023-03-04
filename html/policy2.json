@@ -465,7 +465,46 @@
                   "action" : "alarm",
                   "name" : "unknown"
                }
-            ]
+            ],
+            "browsers": [
+                {
+                    "name": "safari",
+                    "action": "detect"
+                },
+                {
+                    "name": "chrome",
+                    "minVersion": 77,
+                    "action": "alarm"
+                },
+                {
+                    "name": "firefox",
+                    "minVersion": 45,
+                    "maxVersion": 60,
+                    "action": "detect"
+                },
+                {
+                    "name": "FunkyBrowserV3",
+                    "action": "detect"
+                }
+            ],
+            "signatures": [
+               {
+                   "action": "ignore",
+                   "name": "python-requests"
+               }
+           ],
+            "anomalies": [
+                    {
+                        "name": "Suspicious HTTP Headers",
+                        "action": "alarm",
+                        "scoreThreshold": 50
+                    },
+                    {
+                        "name": "Invalid HTTP Headers",
+                        "action": "block",
+                        "scoreThreshold": 99
+                    }
+                ]           
          },
          "settings" : {
             "caseSensitiveHttpHeaders" : true,
@@ -510,6 +549,9 @@
             "wildcardOrder" : 1
          }
       ],
+      "server-technologies": [
+          { "serverTechnologyName": "Apache/NCSA HTTP Server" }
+      ],     
       "csrf-protection" : {
          "enabled" : false
       },
@@ -793,7 +835,17 @@
             "normalizationViolations" : true,
             "percentDecoding" : false,
             "type" : "explicit",
-            "urlNormalization" : true
+            "urlNormalization" : true,
+            "signatureOverrides": [
+               {
+                  "enabled": true,
+                  "signatureId": 200010008
+               },
+               {
+                  "enabled": false,
+                  "signatureId": 200010093
+               }		    
+            ]
          },
          {
             "allowRepeatedOccurrences" : true,
@@ -1277,6 +1329,31 @@
             "wildcardOrder" : 2
          }
       ],
+      "whitelist-ips": [
+         {
+             "blockRequests": "never",
+             "neverLogRequests": false,
+             "ipAddress": "1.1.1.1",
+             "ipMask": "255.255.255.255"
+         },
+         {
+             "blockRequests": "always",
+             "ipAddress": "2.2.2.2",
+             "ipMask": "255.255.255.255"
+         },
+         {
+             "blockRequests": "never",
+             "neverLogRequests": false,
+             "ipAddress": "3.3.3.0",
+             "ipMask": "255.255.255.0"
+         },
+         {
+             "blockRequests": "never",
+             "neverLogRequests": true,
+             "ipAddress": "4.4.4.0",
+             "ipMask": "255.255.255.0"
+         }
+     ],      
       "xml-profiles" : [
          {
             "attackSignaturesCheck" : true,
@@ -1300,6 +1377,16 @@
             },
             "description" : "Default XML Profile",
             "name" : "Default"
+         }
+      ],
+      "threat-campaigns" : [{
+      "name":"test",
+      "enabled":false
+      }],
+      "signatures" : [
+         {
+            "signatureId" : "200001234",
+            "enabled":true
          }
       ]
    }

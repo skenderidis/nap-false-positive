@@ -1,0 +1,28 @@
+{
+    "policy": {
+        "applicationLanguage": "utf-8",
+        "name": "app1_default",
+        "template": {
+            "name": "POLICY_TEMPLATE_NGINX_BASE"
+        },
+        "blocking-settings": {
+            "violations": [
+                {
+                    "name": "VIOL_CSRF",
+                    "alarm": true,
+                    "block": true
+                }
+            ]
+        },
+        "csrf-protection": {
+            "enabled": true
+        },
+        "signature-sets": [
+            {
+                "alarm": false,
+                "block": false,
+                "name": "Server Side Code Injection Signatures"
+            }
+        ]
+    }
+}

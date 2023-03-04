@@ -1,0 +1,78 @@
+{
+    "policy": {
+        "name": "user_defined",
+        "template": {
+            "name": "POLICY_TEMPLATE_NGINX_BASE"
+        },
+        "applicationLanguage": "utf-8",
+        "enforcementMode": "transparent",
+        "blocking-settings": {
+            "violations": [
+                {
+                    "name": "VIOL_PARAMETER_NUMERIC_VALUE",
+                    "alarm": true,
+                    "block": true
+                },
+                {
+                    "name": "VIOL_PARAMETER_VALUE_LENGTH",
+                    "alarm": true,
+                    "block": true
+                },
+                {
+                    "name": "VIOL_PARAMETER_STATIC_VALUE",
+                    "alarm": true,
+                    "block": true
+                },
+                {
+                    "name": "VIOL_PARAMETER_DATA_TYPE",
+                    "alarm": true,
+                    "block": true
+                }
+            ]
+        },
+        "parameters": [
+            {
+                "name": "number",
+                "type": "explicit",
+                "parameterLocation": "any",
+                "mandatory": false,
+                "allowEmptyValue": false,
+                "allowRepeatedParameterName": false,
+                "sensitiveParameter": false,
+                "valueType": "user-input",
+                "dataType": "integer",
+                "checkMinValue": true,
+                "checkMaxValue": true,
+                "minimumValue": 9,
+                "maximumValue": 99,
+                "exclusiveMin": true,
+                "exclusiveMax": true
+            }
+        ],
+        "signature-sets": [
+            {
+                "alarm": false,
+                "block": false,
+                "name": "XML External Entities (XXE) Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "XML External Entities (XXE)"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "XML External Entities (XXE) Signatures",
+                    "type": "filter-based"
+                }
+            }
+        ]
+    }
+}

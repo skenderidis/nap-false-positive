@@ -54,19 +54,19 @@
             <nav id="sidebarMenu" class="col-md-1 col-lg-1 d-md-block bg-light sidebar collapse">
                <div class="position-sticky pt-3" style="width:99%">
                   <ul class="nav flex-column">
-										<li class="nav-item" style="background-color:#d2d8dc">
+							<li class="nav-item" style="background-color:#d2d8dc">
                         <a class="nav-link active" href="#">
                         <span data-feather="file"></span>
                         Violations
                         </a>
                      </li>
-							<li class="nav-item" hidden>
+							<li class="nav-item">
                         <a class="nav-link" aria-current="page" href="policies.php">
                         <span data-feather="home"></span>
                         	Policies
                         </a>
                      </li>
-										 <li class="nav-item">
+							<li class="nav-item">
                         <a class="nav-link" aria-current="page" href="settings.php">
                         <span data-feather="home"></span>
                         	Settings
