@@ -265,7 +265,7 @@
 
       $response = 1;
       if ($path != ".") 
-         $response = verify_path($git_fqdn, $project_name, $token,  $id, $path, $branch);
+         $response = verify_path_gitlab($git_fqdn, $project_name, $token,  $id, $path, $branch);
    
       if ($response != 1)
       {
