@@ -363,7 +363,7 @@ a {
 .test>thead>tr>th {
   padding:6px 10px;
   color: black;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #73879C;
 
 }
 .table-violation>tbody>tr>td {
@@ -402,11 +402,63 @@ display: none;
 }
 
 
-td.delete_button {
-  cursor: pointer;
-  text-align: center;
-}
 
 #user{
   color:white
+}
+
+td.edit_button{
+   cursor: pointer;
+   text-align:center;   
+   font-size: 16px;
+   color: black;
+   width: 15px;
+}
+
+td.disabled_button{
+   text-align:center;   
+   font-size: 16px;
+   color: rgb(130, 128, 128);
+   width: 15px;
+}
+
+td.delete_button {
+   cursor: pointer;
+   font-size: 16px;
+   text-align: center;
+   color:black;
+   width: 15px;
+ }
+
+.subtable
+{
+   background-color:white
+}
+.enabled
+{
+   background-color:white
+}
+
+textarea:disabled {
+   background-color:#e9eaec;
+}
+
+
+
+.btn_bottom_form{
+   padding: 3px 7px;
+   font-size: 13px;
+}
+
+.checkbox_form
+{
+/* margin-top:5px; */
+   height:18px;
+   width:18px
+}
+
+
+.vars {
+   
+   display:none;
 }

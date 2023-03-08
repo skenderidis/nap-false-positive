@@ -1,36 +1,51 @@
 <?php
 
-	// Read the JSON GITLAB file 
-	$json = file_get_contents('/etc/fpm/gitlab.json');
+   session_start();
+
+   if (!isset($_SESSION['auth']))
+   {
+      header("Location: login.php"); 
+      exit();
+   }
+   if (!$_SESSION["auth"])
+   {
+      header("Location: login.php"); 
+      exit();
+   }
+
+	// Read the JSON GIT file 
+	$json = file_get_contents('/etc/fpm/git.json');
 	$json_data = json_decode($json,true);
 
-	# If request doesn't contain the gitlab variable return an error.
-	# Gitlab variable is meant to be an ID.
-	if( !(isset($_POST['gitlab'])) )
+	# If request doesn't contain the git variable return an error.
+	# Git variable is meant to be a UUID.
+	if( !(isset($_POST['git'])) )
 	{
 			echo '
 			<div class="alert alert-danger alert-dismissible fade show" role="alert">
-				<strong>Error!</strong>GitLab Destination not Set.
+				<strong>Error!</strong>Git Destination not Set.
 				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 			</div>';					
 			exit();
 	}
 	else
 	{
-		# Run through all the gitlab entries and try to match the ID.
+		# Run through all the git entries and try to match the ID.
 		$found_git = "false";
 		foreach($json_data as $git)
 		{
-			# Get all details for the Gitlab to be used.
-			if($git["id"] == $_POST['gitlab'])
+			# Get all details for the Git to be used.
+			if($git["uuid"] == $_POST['git'])
 			{
 				$found_git="true";
 				$token = $git["token"];
-				$gitlab = $git["fqdn"];
+				$git_fqdn = $git["fqdn"];
 				$project = $git["project"];
 				$branch = $git["branch"];
 				$format = $git["format"];
 				$path = $git["path"];
+				$id = $git["id"];
+            $type = $git["type"];
 				if ($path == ".")
 					$path = "";
 			}
@@ -40,7 +55,7 @@
 		{
 			echo '
 			<div class="alert alert-danger alert-dismissible fade show" role="alert">
-				<strong>Error!</strong> GitLab not found on list. Click <a href="settings.php">here</a> to add it..
+				<strong>Error!</strong> Git not found on list. Click <a href="settings.php">here</a> to add it..
 				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 			</div>';						
 			exit();
@@ -77,17 +92,17 @@
 
 	# Check if the support ID is sent as a parameter.
 		if( !(isset($_POST['support_id'])) )
-		$support_id = "-";
+		$support_id = "none";
 	else
 		$support_id = $_POST['support_id'];
 
-	# Check if the Gitlab comment is sent as a parameter.
+	# Check if the Git comment is sent as a parameter.
 		if( !(isset($_POST['comment'])) )
-		$comment = "-";
+		$comment = "none";
 	else
 		$comment = base64_decode($_POST['comment']);
 		
-
+	$comment = "(" . $support_id . ") - ". $comment;
 
 	function json_validate($string)
 	{
@@ -139,101 +154,107 @@
 			// everything is OK
 			return $result;
 	}
-	# This function will verify that the Gitlab repo exists and we are able to connect.
-	function verify_project($project, $token, $gitlab) {
-		$headers = array(
-			'Content-Type: application/json',
-			'Accept: application/json, text/javascript, */*; ',
-			'PRIVATE-TOKEN: ' . $token
-			);
-
-			$url = $gitlab."/api/v4/projects";
-			
-			$curl = curl_init($url);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+	
+	function get_id_gitlab($git_fqdn, $project, $token) {
+      $headers = array(
+         'Content-Type: application/json',
+         'Accept: application/json, text/javascript, */*; ',
+         'PRIVATE-TOKEN: ' . $token
+         );
+      $url = $git_fqdn."/api/v4/projects";            
+	
+      $curl = curl_init($url);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+      curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($curl,CURLOPT_TIMEOUT,4);
+      curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+   
+		$curl_response = curl_exec($curl);
 		
-			$curl_response = curl_exec($curl);
-		
-			if ($curl_response === false) {
-				curl_close($curl);
-				return -2;
-			}
-			$httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+      #verify that the transaction was successful
+      if (curl_errno($curl))
+         return curl_error($curl);
 
-			if ($curl_response == 401) {
-				curl_close($curl);
-				return -3;
-			} 
+      #Wrong Password
+      $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+      if ($httpcode == 401) 
+      {
+         curl_close($curl);
+         return "Authentication failure.";
+      } 
+		curl_close($curl);
 
-			curl_close($curl);
-			$result = json_decode($curl_response, true);
+      $result = json_decode($curl_response, true); ## Save response to a JSON variable
 
-			$project_found = False;
+      foreach ($result as $repo)
+      {
+         if ($repo["path_with_namespace"] == $project)
+            return $repo["id"];        ##  Return the Repo ID
+      }
 
-			foreach ($result as $repo)
-			{
-				if ($repo["path_with_namespace"] == $project)
-				{
-					$project_found = True;
-					return $repo["id"];
-				}	
-			}
-			if (!$project_found )
-				return -1;
+      return "Project/Repo Not found (".$project.").";
 	}
-	# This function will verify that the policy file exists and download from Gitlab in Base64 format.
-	function get_policy($project, $token, $id, $gitlab, $path, $policy, $branch) {
+
+	# This function will download the policy from Gitlab in Base64 format.
+	function get_policy_gitlab($git_fqdn, $project, $token, $id, $path, $policy, $branch) {
 		$headers = array(
 			'Content-Type: application/json',
 			'Accept: application/json, text/javascript, */*; ',
 			'PRIVATE-TOKEN: ' . $token
 			);
 			if ($path=="")
-				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
+				$url = $git_fqdn."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
 			else
-				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
+				$url = $git_fqdn."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
 
-			$curl = curl_init($url);
+         $curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		
 			$curl_response = curl_exec($curl);
-
-			if ($curl_response === false) {
-				$info = curl_getinfo($curl);
-				curl_close($curl);
-				return -2;
-			}
+         $result  = array("status" => 0, "msg" => "-");
+         
+         if (curl_errno($curl))
+         {
+            $result["status"]=0;
+            $result["msg"]=curl_error($curl);
+            return $result;
+         }
 
 			$httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 			curl_close($curl);
-
+        
 			if ($httpcode == 200)
 			{
-				$result = json_decode($curl_response, true);
-				return $result["content"];
+				$policy = json_decode($curl_response, true);
+            $result["status"]=1;
+            $result["msg"]=$policy;
+            return $result;
 			}
 			else
-				return -1;
+         {
+            $result["status"]=0;
+            $result["msg"]= $httpcode . " HTTP code received while getting the policy '".$policy. "' from " .$project."/".$path;
+            return $result;
+         }
 
 	}
-	# This function will upload the policy file from Gitlab in Base64 format.
-	function update_policy($project, $token, $id, $gitlab, $path, $policy, $branch, $payload) {
+
+   # This function will upload the policy file to Gitlab in Base64 format.
+	function update_policy_gitlab($git_fqdn, $project, $token, $id, $path, $policy, $branch, $payload) {
 		$headers = array(
 			'Content-Type: application/json',
 			'Accept: application/json, text/javascript, */*; ',
 			'PRIVATE-TOKEN: ' . $token
 			);
 			if ($path == "")
-				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
+				$url = $git_fqdn."/api/v4/projects/".$id."/repository/files/".urlencode($policy)."?ref=".$branch;
 			else
-				$url = $gitlab."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
-
+				$url = $git_fqdn."/api/v4/projects/".$id."/repository/files/".urlencode($path."/".$policy)."?ref=".$branch;
+         
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
@@ -247,80 +268,163 @@
 			
 			$result = json_decode($curl_response, true);
 
-			if ($curl_response === false) {
-				$info = curl_getinfo($curl);
-				curl_close($curl);
-				return -1;
-			}
+		
+         #verify that the transaction was successful
+         if (curl_errno($curl))
+            return curl_error($curl);
 		
 			curl_close($curl);
-			return $result;
+         if ($httpcode==200)
+            return "Success";
+         else
+            return "Failed!! ". $httpcode . " HTTP code received while updating the policy '".$policy. "' from " .$project."/".$path;;
+	}
+
+	# Download the file from Gitea in Base64 format.
+	function get_policy_gitea($git_fqdn, $project, $token, $id, $path, $policy, $branch) {
+		$headers = array(
+			'Content-Type: application/json',
+			'Accept: application/json, text/javascript, */*; ',
+			'Authorization: token ' . $token
+			);
+			if ($path=="")
+				$url = $git_fqdn."/api/v1/repos/".$project."/contents/".urlencode($policy)."?ref=".$branch;
+			else
+				$url = $git_fqdn."/api/v1/repos/".$project."/contents/".urlencode($path."/".$policy)."?ref=".$branch;
+
+         $curl = curl_init($url);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		
+			$curl_response = curl_exec($curl);
+         $result  = array("status" => 0, "msg" => "-");
+         
+         if (curl_errno($curl))
+         {
+            $result["status"]=0;
+            $result["msg"]=curl_error($curl);
+            return $result;
+         }
+
+			$httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+			curl_close($curl);
+        
+			if ($httpcode == 200)
+			{
+				$policy = json_decode($curl_response, true);
+            $result["status"]=1;
+            $result["msg"]=$policy;
+            return $result;
+			}
+			else
+         {
+            $result["status"]=0;
+            $result["msg"]= $httpcode . " HTTP code received while getting the policy '".$policy. "' from " .$project."/".$path;
+            return $result;
+         }
+
+	}
+
+   # This function will upload the policy file to Gitea in Base64 format.
+	function update_policy_gitea($git_fqdn, $project, $token, $path, $policy, $branch, $payload) {
+		$headers = array(
+			'Content-Type: application/json',
+			'Accept: application/json, text/javascript, */*; ',
+			'Authorization: token ' . $token
+			);
+			if ($path == "")
+				$url = $git_fqdn."/api/v1/repos/".$project."/contents/".urlencode($policy)."?ref=".$branch;
+			else
+				$url = $git_fqdn."api/v1/repos/".$project."/contents/".urlencode($path."/".$policy)."?ref=".$branch;
+         
+			$curl = curl_init($url);
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+			curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		
+			$curl_response = curl_exec($curl);
+			$httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 			
+			$result = json_decode($curl_response, true);
+
+         #verify that the transaction was successful
+         if (curl_errno($curl))
+            return curl_error($curl);
+		
+			curl_close($curl);
+
+         if ($httpcode==200)
+            return "Success";
+         else
+            return "Failed!! ". $httpcode . " HTTP code received while updating the policy '".$policy. "' from " .$project."/".$path;;
 	
 	}
 
-	#### Verify that the Project exists and get ID
-	$id = verify_project($project, $token, $gitlab);
+   ##-----------------------  Download Policy  ----------------------------
+   if ($type == "gitlab")
+   {
 
-	# if the result of the verify project is -3 then it is an authentication issue
-	if ($id == -3)
-	{
-		echo '
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					Unable to authenticate user.
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-		exit();
-	}
-	# if the result of the verify project is -2 then it is an connectivity issue
-	if ($id == -2)
-	{
-		echo '
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					Unable to connect to <strong>"'.$gitlab.'"</strong>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-		exit();
-	}
-	# if the result of the verify project is -1 then the repo was not found
-	if ($id == -1)
-	{
+      #### Verify that the Project exists and get ID
+      $id = get_id_gitlab($git_fqdn, $project, $token);
 
-		echo '
-			<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				Project <b>"'.$project.'"</b> not found 
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>';
-		exit();
-	}
+      #### If ID is not Integer, then give the error description
+      if (!is_int($id))
+      {
+         echo '
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+               <b>Failed!</b> '.$id.'
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+         exit();
+      }
+     
+	   #### Verify that the Policy exists and get contents exists
+      $policy_content = get_policy_gitlab($git_fqdn, $project, $token, $id, $path, $policy, $branch);
+     
+      # if the result of the get_policy function is 0 then it is an issue
+      if ($policy_content["status"] == 0)
+      {
+         echo '
+               <div class="alert alert-warning alert-dismissible fade show" role="alert">
+               <b>Failed!</b> '.$policy_content["msg"].'
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>';
+         exit();
+      }
+      
+      file_put_contents("policy",base64_decode($policy_content["msg"]["content"]));  # store the policy to a file
 
-	#### Verify that the Policy exists and get contents exists
-	$policy_content = get_policy($project, $token,  $id, $gitlab, $path, $policy, $branch);
+   }
 
-	# if the result of the verify project is -2 then it is an connectivity issue
-	if ($policy_content == -2)
-	{
-		echo '
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					Unable to connect to <b>"'.$gitlab.'"</b>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-		exit();
-	}
-	# if the result of the verify project is -1 then the pollicy was not found
-	if ($policy_content == -1)
-	{
+   if ($type == "gitea")
+   {
 
-		echo '
-		<div class="alert alert-warning alert-dismissible fade show" role="alert">
-			Policy <b>"'.$policy.'"</b> in branch "'.$branch.'" was not found 
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>';
-		exit();
-	}
+	   #### Verify that the Policy exists and get contents exists
+      $policy_content = get_policy_gitea($git_fqdn, $project, $token, $id, $path, $policy, $branch);
+     
+      # if the result of the get_policy function is 0 then it is an issue
+      if ($policy_content["status"] == 0)
+      {
+         echo '
+               <div class="alert alert-warning alert-dismissible fade show" role="alert">
+               <b>Failed!</b> '.$policy_content["msg"].'
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>';
+         exit();
+      }
+      
+      file_put_contents("policy",base64_decode($policy_content["msg"]["content"]));  # store the policy to a file
 
-	# store the policy to a file
-	file_put_contents("policy",base64_decode($policy_content));
+   }
+     
+
+   ##-----------------------  Python merge script  ----------------------------
+
 	
 	# Run the python script to make the policy changes
 	$run_python_script = 'python3 modify-nap.py ' . strtolower($format) . ' ' . $policy_data ;
@@ -335,27 +439,76 @@
   		'.$output.'
   		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>';
+   	# Delete Temp files
+      unlink('policy');
+      unlink('policy_mod');
+      exit();
 	}
-	else
-	{ 
 
-		# the python script will have created a file called "policy_mod".
-		$new_policy = base64_encode(file_get_contents('policy_mod'));
+   # the python script will have created a file called "policy_mod".
+   $new_policy = base64_encode(file_get_contents('policy_mod'));
+
+   ##-----------------------   Update Policy   ----------------------------
+	if ($type=="gitlab")
+	{ 
 		# create the payload to send to Gitlab
 		$payload = '{"encoding":"base64", "branch": "'.$branch.'", "content": "'.$new_policy.'", "commit_message": "'.$comment.'"}';
 
 		# run function that will upload the updated file.
-		$result = update_policy($project, $token, $id, $gitlab, $path, $policy, $branch, $payload);
+		$result = update_policy_gitlab($git_fqdn, $project, $token, $id, $path, $policy, $branch, $payload);
 
-		echo '
-		<div class="alert alert-success alert-dismissible fade show" role="alert">
-  		'.$output.'
-  		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>';
+      if ($result == "Success")
+      {
+         echo '
+         <div class="alert alert-success alert-dismissible fade show" role="alert">
+         '.$output.'
+         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>';
+      }
+      else
+      {
+         echo '
+         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+         '.$result.'
+         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>';
+
+      }
+
 	}
 	
-	# Delete Temp files
-	unlink('policy');
-	unlink('policy_mod');
+	if ($type=="gitea")
+	{ 
+		# create the payload to send to Gitlab
+		$payload = '{"branch": "'.$branch.'", "content": "'.$new_policy.'", "sha": "'.$policy_content["msg"]["sha"].'", "commit_message": "'.$comment.'"}';
+
+		# run function that will upload the updated file.
+		$result = update_policy_gitea($git_fqdn, $project, $token, $path, $policy, $branch, $payload);
+
+
+      if ($result == "Success")
+      {
+         echo '
+         <div class="alert alert-success alert-dismissible fade show" role="alert">
+         '.$output.'
+         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>';
+      }
+      else
+      {
+         echo '
+         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+         '.$result.'
+         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>';
+
+      }
+
+	}
+
+   # Delete Temp files
+   unlink('policy');
+   unlink('policy_mod');      
+   exit();
 
 ?>

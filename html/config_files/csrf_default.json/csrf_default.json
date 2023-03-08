@@ -1,0 +1,563 @@
+{
+    "policy": {
+        "applicationLanguage": "utf-8",
+        "name": "csrf_default",
+        "template": {
+            "name": "POLICY_TEMPLATE_NGINX_BASE"
+        },
+        "blocking-settings": {
+            "violations": [],
+            "http-protocols": [
+                {
+                    "description": "Check maximum number of cookies",
+                    "enabled": true,
+                    "maxCookies": 100
+                }
+            ],
+            "evasions": [
+                {
+                    "description": "Semicolon path parameters",
+                    "enabled": false
+                },
+                {
+                    "description": "Bad unescape",
+                    "enabled": true
+                },
+                {
+                    "description": "Apache whitespace",
+                    "enabled": true
+                },
+                {
+                    "description": "Bare byte decoding",
+                    "enabled": true
+                },
+                {
+                    "description": "IIS Unicode codepoints",
+                    "enabled": true
+                },
+                {
+                    "description": "IIS backslashes",
+                    "enabled": true
+                },
+                {
+                    "description": "%u decoding",
+                    "enabled": true
+                },
+                {
+                    "description": "Multiple decoding",
+                    "enabled": true,
+                    "maxDecodingPasses": 3
+                },
+                {
+                    "description": "Directory traversals",
+                    "enabled": true
+                },
+                {
+                    "description": "Multiple slashes",
+                    "enabled": true
+                }
+            ]
+        },
+        "csrf-protection": {
+            "enabled": false
+        },
+        "bot-defense": {
+            "settings": {
+                "caseSensitiveHttpHeaders": false,
+                "isEnabled": false
+            },
+            "mitigations": {
+                "classes": [
+                    {
+                        "action": "alarm",
+                        "name": "malicious-bot"
+                    },
+                    {
+                        "action": "alarm",
+                        "name": "suspicious-browser"
+                    },
+                    {
+                        "action": "alarm",
+                        "name": "untrusted-bot"
+                    },
+                    {
+                        "action": "detect",
+                        "name": "trusted-bot"
+                    },
+                    {
+                        "action": "detect",
+                        "name": "browser"
+                    },
+                    {
+                        "action": "alarm",
+                        "name": "unknown"
+                    }
+                ]
+            }
+        },
+        "general": {
+            "maskCreditCardNumbersInRequest": false,
+            "trustXff": false,
+            "customXffHeaders": [
+                "CFD",
+                "kostas"
+            ],
+            "allowedResponseCodes": [
+                400,
+                401,
+                404,
+                407,
+                417,
+                503
+            ]
+        },
+        "cookie-settings": {
+            "maximumCookieHeaderLength": "4096"
+        },
+        "enforcementMode": "blocking",
+        "description": null,
+        "header-settings": {
+            "maximumHttpHeaderLength": 2048
+        },
+        "data-guard": {
+            "creditCardNumbers": true,
+            "enabled": true,
+            "enforcementMode": "ignore-urls-in-list",
+            "maskData": true,
+            "usSocialSecurityNumbers": true
+        },
+        "signature-sets": [
+            {
+                "alarm": true,
+                "block": false,
+                "name": "XML External Entities (XXE) Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "XML External Entities (XXE)"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "XML External Entities (XXE) Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "CVE Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "hasCve": "yes",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "CVE Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Vulnerability Scan Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "Vulnerability Scan"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "Vulnerability Scan Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Denial of Service Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "Denial of Service"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "Denial of Service Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Buffer Overflow Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "Buffer Overflow"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "Buffer Overflow Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Authentication\/Authorization Attack Signatures",
+                "signatureSet": {
+                    "filter": {
+                        "accuracyFilter": "all",
+                        "accuracyValue": "all",
+                        "attackType": {
+                            "name": "Authentication\/Authorization Attacks"
+                        },
+                        "hasCve": "all",
+                        "lastUpdatedFilter": "all",
+                        "riskFilter": "all",
+                        "riskValue": "all",
+                        "signatureType": "request",
+                        "tagFilter": "all",
+                        "userDefinedFilter": "all"
+                    },
+                    "name": "Authentication\/Authorization Attack Signatures",
+                    "type": "filter-based"
+                }
+            },
+            {
+                "alarm": true,
+                "block": true,
+                "name": "High Accuracy Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "SQL Injection Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Cross Site Scripting Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "OS Command Injection Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Path Traversal Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "XPath Injection Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Command Execution Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Server Side Code Injection Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Information Leakage Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Directory Indexing Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Remote File Include Signatures"
+            },
+            {
+                "alarm": true,
+                "block": false,
+                "name": "Predictable Resource Location Signatures"
+            }
+        ],
+        "filetypes": [
+            {
+                "allowed": false,
+                "name": "cmd"
+            }
+        ],
+        "urls": [
+            {
+                "attackSignaturesCheck": true,
+                "clickjackingProtection": false,
+                "disallowFileUploadOfExecutables": false,
+                "html5CrossOriginRequestsEnforcement": {
+                    "enforcementMode": "disabled"
+                },
+                "isAllowed": true,
+                "mandatoryBody": false,
+                "metacharsOnUrlCheck": true,
+                "method": "*",
+                "methodsOverrideOnUrlCheck": false,
+                "name": "*",
+                "protocol": "http",
+                "type": "wildcard",
+                "urlContentProfiles": [
+                    {
+                        "headerName": "*",
+                        "headerOrder": "default",
+                        "headerValue": "*",
+                        "type": "apply-value-and-content-signatures"
+                    },
+                    {
+                        "headerName": "Content-Type",
+                        "headerOrder": "1",
+                        "headerValue": "*form*",
+                        "type": "form-data"
+                    },
+                    {
+                        "contentProfile": {
+                            "name": "Default"
+                        },
+                        "headerName": "Content-Type",
+                        "headerOrder": "2",
+                        "headerValue": "*json*",
+                        "type": "json"
+                    },
+                    {
+                        "contentProfile": {
+                            "name": "Default"
+                        },
+                        "headerName": "Content-Type",
+                        "headerOrder": "3",
+                        "headerValue": "*xml*",
+                        "type": "xml"
+                    }
+                ],
+                "wildcardOrder": 2
+            }
+        ],
+        "cookies": [
+            {
+                "accessibleOnlyThroughTheHttpProtocol": false,
+                "attackSignaturesCheck": false,
+                "decodeValueAsBase64": "disabled",
+                "enforcementType": "allow",
+                "insertSameSiteAttribute": "none",
+                "maskValueInLogs": false,
+                "name": "*",
+                "securedOverHttpsConnection": false,
+                "type": "wildcard",
+                "wildcardOrder": 1
+            }
+        ],
+        "headers": [
+            {
+                "allowRepeatedOccurrences": true,
+                "checkSignatures": true,
+                "decodeValueAsBase64": "disabled",
+                "htmlNormalization": false,
+                "mandatory": false,
+                "maskValueInLogs": false,
+                "name": "*",
+                "normalizationViolations": false,
+                "percentDecoding": true,
+                "type": "wildcard",
+                "urlNormalization": false,
+                "wildcardOrder": 2
+            },
+            {
+                "allowRepeatedOccurrences": true,
+                "checkSignatures": true,
+                "decodeValueAsBase64": "required",
+                "htmlNormalization": false,
+                "mandatory": false,
+                "maskValueInLogs": false,
+                "name": "*-bin",
+                "normalizationViolations": false,
+                "percentDecoding": false,
+                "type": "wildcard",
+                "urlNormalization": false,
+                "wildcardOrder": 1
+            },
+            {
+                "allowRepeatedOccurrences": true,
+                "checkSignatures": true,
+                "decodeValueAsBase64": "disabled",
+                "htmlNormalization": false,
+                "mandatory": false,
+                "maskValueInLogs": false,
+                "name": "referer",
+                "normalizationViolations": true,
+                "percentDecoding": false,
+                "type": "explicit",
+                "urlNormalization": true
+            },
+            {
+                "allowRepeatedOccurrences": false,
+                "checkSignatures": false,
+                "mandatory": false,
+                "maskValueInLogs": false,
+                "name": "cookie",
+                "type": "explicit"
+            },
+            {
+                "allowRepeatedOccurrences": false,
+                "checkSignatures": true,
+                "decodeValueAsBase64": "disabled",
+                "htmlNormalization": false,
+                "mandatory": false,
+                "maskValueInLogs": true,
+                "name": "authorization",
+                "normalizationViolations": false,
+                "percentDecoding": true,
+                "type": "explicit",
+                "urlNormalization": false
+            },
+            {
+                "allowRepeatedOccurrences": false,
+                "checkSignatures": true,
+                "decodeValueAsBase64": "disabled",
+                "htmlNormalization": false,
+                "mandatory": false,
+                "maskValueInLogs": false,
+                "name": "transfer-encoding",
+                "normalizationViolations": true,
+                "percentDecoding": false,
+                "type": "explicit",
+                "urlNormalization": true
+            }
+        ],
+        "json-profiles": [
+            {
+                "attackSignaturesCheck": true,
+                "defenseAttributes": {
+                    "maximumArrayLength": "any",
+                    "maximumStructureDepth": 25,
+                    "maximumTotalLengthOfJSONData": "any",
+                    "maximumValueLength": "any",
+                    "tolerateJSONParsingWarnings": true
+                },
+                "description": "Default JSON Profile",
+                "handleJsonValuesAsParameters": false,
+                "hasValidationFiles": false,
+                "metacharElementCheck": true,
+                "name": "Default",
+                "validationFiles": []
+            }
+        ],
+        "xml-profiles": [
+            {
+                "attackSignaturesCheck": true,
+                "defenseAttributes": {
+                    "allowCDATA": true,
+                    "allowDTDs": true,
+                    "allowExternalReferences": true,
+                    "allowProcessingInstructions": true,
+                    "maximumAttributeValueLength": "any",
+                    "maximumAttributesPerElement": 32,
+                    "maximumChildrenPerElement": 4096,
+                    "maximumDocumentDepth": 32,
+                    "maximumDocumentSize": 1024000,
+                    "maximumElements": 512000,
+                    "maximumNSDeclarations": 64,
+                    "maximumNameLength": "any",
+                    "maximumNamespaceLength": "any",
+                    "tolerateCloseTagShorthand": true,
+                    "tolerateLeadingWhiteSpace": true,
+                    "tolerateNumericNames": true
+                },
+                "description": "Default XML Profile",
+                "name": "Default",
+                "useXmlResponsePage": false
+            }
+        ],
+        "methods": [
+            {
+                "name": "OPTIONS"
+            },
+            {
+                "name": "POST"
+            },
+            {
+                "name": "GET"
+            },
+            {
+                "name": "PATCH"
+            },
+            {
+                "name": "HEAD"
+            },
+            {
+                "name": "DELETE"
+            },
+            {
+                "name": "PUT"
+            }
+        ],
+        "response-pages": [
+            {
+                "responseActionType": "soap-fault",
+                "responsePageType": "xml"
+            },
+            {
+                "ajaxActionType": "alert-popup",
+                "ajaxEnabled": false,
+                "ajaxPopupMessage": "The requested URL was rejected. Please consult with your administrator. Your support ID is: <%TS.request.ID()%>",
+                "responsePageType": "ajax"
+            },
+            {
+                "responseActionType": "default",
+                "responsePageType": "default"
+            },
+            {
+                "grpcStatusCode": "UNKNOWN",
+                "grpcStatusMessage": "The request was rejected. Please consult with your administrator. Your support ID is: <%TS.request.ID()%>",
+                "responsePageType": "grpc"
+            }
+        ]
+    }
+}

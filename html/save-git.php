@@ -17,13 +17,13 @@
     }
 
 
-    if (isset($_POST["gitlab"])) 
+    if (isset($_POST["git"])) 
     {
-        $file = "/etc/fpm/gitlab.json";
-        file_put_contents($file, $_POST['gitlab']);
+        $file = "/etc/fpm/git.json";
+        file_put_contents($file, $_POST['git']);
         echo '
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> Gitlab Details saved.
+            <strong>Success!</strong> Git Details saved.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>';	
     
@@ -31,7 +31,7 @@
     {  
         echo '
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> Gitlab Details were not saved.
+            <strong>Error!</strong> Git Details were not saved.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>';	
     }

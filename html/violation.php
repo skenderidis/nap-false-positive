@@ -115,10 +115,10 @@
 		}
 	}
 		// Read the JSON file 
-		$file = file_get_contents('/etc/fpm/gitlab.json');
+		$file = file_get_contents('/etc/fpm/git.json');
 				
 		// Decode the JSON file
-		$gitlab_data = json_decode($file,true);
+		$git_data = json_decode($file,true);
 
 ?>
 
@@ -128,7 +128,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="author" content="Kostas Skenderidis">
-      <title>NAP False Positive Management</title>
+      <title>NAP</title>
       <link href="css/dataTables.bootstrap5.min.css" rel="stylesheet">
       <link rel="stylesheet" href="css/font-awesome.min.css">
       <!-- Bootstrap core CSS -->
@@ -143,42 +143,43 @@
 
    </head>
    <body style="min-width: 1280px;">
-	 		<nav class="navbar navbar-dark bg-dark sticky-top " style="padding:0px 50px 0px 10px;">
-					
-					<a class="navbar-brand" href="#"><img src="images/app-protect.svg" width=32/> &nbsp; NGINX App Protect - False Positive Management</a>
+      <nav class="navbar navbar-dark bg-dark sticky-top " style="padding:0px 50px 0px 10px;">
+            
+            <a class="navbar-brand" href="index.php"><img src="images/app-protect.svg" width=32/> &nbsp; NGINX App Protect</a>
 
 
-					<li class="nav-item2 dropdown" style="list-style-type: none; ">
-            <a class="nav-link dropdown-toggle" href="#" id="user" data-bs-toggle="dropdown"><i class="fa fa-user"></i>&nbsp; User &nbsp;</a>
-            <ul class="dropdown-menu" aria-labelledby="user" style="font-size: 12px;left:-25px">
-						<li><a class="dropdown-item" href="logout.php">Logout</a></li>
-						<li><a class="dropdown-item" href="settings.php">Change Password</a></li>
-						</ul>
-					</li>
-			</nav>
+            <li class="nav-item2 dropdown" style="list-style-type: none; ">
+         <a class="nav-link dropdown-toggle" href="#" id="user" data-bs-toggle="dropdown"><i class="fa fa-user"></i>&nbsp; User &nbsp;</a>
+         <ul class="dropdown-menu" aria-labelledby="user" style="font-size: 12px;left:-25px">
+               <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+               <li><a class="dropdown-item" href="settings.php">Change Password</a></li>
+               </ul>
+            </li>
+      </nav>
       <div class="container-fluid">
          <div class="row">
 				 		<nav id="sidebarMenu" class="col-md-1 col-lg-1 d-md-block bg-light sidebar collapse">
                <div class="position-sticky pt-3" style="width:99%">
                   <ul class="nav flex-column">
-										<li class="nav-item" style="background-color:#d2d8dc">
+							<li class="nav-item" style="background-color:#d2d8dc">
                         <a class="nav-link active" href="#">
                         <span data-feather="file"></span>
                         Violations
                         </a>
                      </li>
-											<li class="nav-item" hidden>
-                        <a class="nav-link" aria-current="page" href="policies.php">
+							<li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="policies.php">
                         <span data-feather="home"></span>
                         	Policies
                         </a>
                      </li>
-										 <li class="nav-item">
+							<li class="nav-item">
                         <a class="nav-link" aria-current="page" href="settings.php">
                         <span data-feather="home"></span>
                         	Settings
                         </a>
                      </li>
+
 
                   </ul>
                </div>
@@ -1164,19 +1165,19 @@
 
 
 					<div class="col-md-12">
-						<label class="form-label">GitLab Merge Request Comment</label>
+						<label class="form-label">Git Comment</label>
 						<input type="text" class="form-control" id="comment" aria-describedby="text">
 					</div>		
 
 					<div class="col-md-6">
 						<label for="inputState" class="form-label">Repository</label>
-						<select id="gitlab" class="form-select">
+						<select id="git" class="form-select">
 						<option >Choose...</option>
 						 	<?php
 						 
-							foreach ($gitlab_data as $gitlab)
+							foreach ($git_data as $git)
 							{
-								echo '<option value="'.$gitlab['id'].'">'.$gitlab['fqdn'].'/'.$gitlab['project'].'/'.$gitlab['path'].'</option>';
+								echo '<option value="'.$git['uuid'].'">'.$git['fqdn'].'/'.$git['project'].'/'.$git['path'].'</option>';
 							}
 							
 							?>
@@ -1216,7 +1217,7 @@ $(document).ready(function(){
 
 		var support_id =  $("#support_id_form").val();
 		var policy =  $("#policy_form").val();
-		var gitlab =  $("#gitlab option:selected").val();
+		var git =  $("#git option:selected").val();
 
 		if (kind == 'modify_bot_class'){
 			var bot_class = $('#bot_class').html().replace(" ", "-").toLowerCase();;
@@ -1384,7 +1385,7 @@ $(document).ready(function(){
 								policy_data:policy_data, 
 								comment:comment, 
 								support_id:support_id, 
-								gitlab:gitlab
+								git:git
 				}
 			})
 			.done(function( msg ) {
