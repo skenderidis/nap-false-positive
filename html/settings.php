@@ -252,22 +252,22 @@
       		<div class="modal-body">
 
 						<form class="row g-3">
-							<div class="col-md-5 vars">
+							<div class="col-md-5">
 								<label class="form-label">Repo FQDN</label>
 								<input type="text" class="form-control" placeholder="https://www.git.com" id="git_fqdn">
 							</div>
-							<div class="col-md-4 vars">
+							<div class="col-md-4">
 								<label class="form-label">Project</label>
 								<input type="text" class="form-control" placeholder="user/project_name" id="project_name">
 							</div>
-							<div class="col-md-3 vars">
+							<div class="col-md-3">
 								<label class="form-label">Format</label>
 								<select class="form-select" id="format">
 									<option value="JSON" selected>JSON</option>
 									<option value="YAML">YAML</option>
 								</select>
 							</div>									
-							<div class="col-md-4 vars">
+							<div class="col-md-4">
 								<label class="form-label">Folder (leave empty for root)</label>
 								<input type="text" class="form-control" placeholder="folder that the policies are stored" id="path">
 							</div>
@@ -288,7 +288,7 @@
 								<input type="text" class="form-control" placeholder="uuid" id="git_uuid">
 							</div>
 
-							<div class="col-md-3 vars">
+							<div class="col-md-3">
 								<label class="form-label">Type</label>
 								<select class="form-select" id="type">
 									<option value="gitlab" selected>GitLab</option>
@@ -297,11 +297,11 @@
 									<option value="bitbucket" disabled>Bitbucket</option>
 								</select>
 							</div>									
-							<div class="col-md-10 violation_form vars">
+							<div class="col-md-10 violation_form">
 								<label class="form-label">Complete URL</label>
 								<input type="text" class="form-control" id="complete_url" disabled>
 							</div>
-							<div class="col-md-2 violation_form vars">
+							<div class="col-md-2 violation_form">
 								<button type="button" class="btn btn-sm btn-success" style="margin-top:32px; font-size:13px" id="validate">Validate</button>
 							</div>
 							<div class="clearfix"></div>
