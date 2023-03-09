@@ -337,7 +337,7 @@
 			if ($path == "")
 				$url = $git_fqdn."/api/v1/repos/".$project."/contents/".urlencode($policy)."?ref=".$branch;
 			else
-				$url = $git_fqdn."api/v1/repos/".$project."/contents/".urlencode($path."/".$policy)."?ref=".$branch;
+				$url = $git_fqdn."/api/v1/repos/".$project."/contents/".urlencode($path."/".$policy)."?ref=".$branch;
          
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
