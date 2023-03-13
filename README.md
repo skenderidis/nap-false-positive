@@ -1,3 +1,5 @@
+## **Important Note:** This project has been archieved and moved to: https://github.com/f5devcentral/nap-policy-management
+
 # NAP - False Positive Management
 > This is a project makes it easier for SecOps teams to manage False Positives and do the required configuration changes to the NGINX App Protect policies by providing a UI.
 
